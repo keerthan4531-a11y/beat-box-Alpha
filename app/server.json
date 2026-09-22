@@ -1,0 +1,5 @@
+{
+  "name": "Beat Box Server",
+  "region": "Global - Beat Box",
+  "serverUrl": "wss://iad1tya-echomusic.hf.space/ws"
+}
