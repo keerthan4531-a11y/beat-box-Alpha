@@ -3,7 +3,14 @@ package iad1tya.echo.music.ui.screens.settings
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.graphics.ImageDecoder
+import android.graphics.drawable.AnimatedImageDrawable
+import android.graphics.BitmapFactory
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.compose.ui.viewinterop.AndroidView
+import timber.log.Timber
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -116,6 +123,9 @@ fun CyberAboutContent(
 
         // 5. Cyber Core Architecture Specs
         CyberTechSpecsCard()
+
+        // 6. Inixa Pixel-Art Animated Banner
+        CyberInixaBannerCard()
 
         // If in Dialog mode, show prominent initialize action button
         if (isDialog && onDismiss != null) {
@@ -737,5 +747,54 @@ fun CyberButton(
                 color = Color.White
             )
         }
+    }
+}
+
+@Composable
+fun CyberInixaBannerCard() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp)),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = CyberCardBg),
+        border = androidx.compose.foundation.BorderStroke(
+            width = 1.dp,
+            brush = Brush.horizontalGradient(
+                listOf(
+                    CyberNeonPurple.copy(alpha = 0.6f),
+                    CyberNeonCyan.copy(alpha = 0.6f)
+                )
+            )
+        )
+    ) {
+        AndroidView(
+            factory = { ctx ->
+                ImageView(ctx).apply {
+                    scaleType = ImageView.ScaleType.FIT_CENTER
+                    adjustViewBounds = true
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            val source = ImageDecoder.createSource(ctx.assets, "lmeb_inixa.gif")
+                            val drawable = ImageDecoder.decodeDrawable(source)
+                            setImageDrawable(drawable)
+                            if (drawable is AnimatedImageDrawable) {
+                                drawable.repeatCount = AnimatedImageDrawable.REPEAT_INFINITE
+                                drawable.start()
+                            }
+                        } else {
+                            val stream = ctx.assets.open("lmeb_inixa.gif")
+                            val bmp = BitmapFactory.decodeStream(stream)
+                            setImageBitmap(bmp)
+                        }
+                    } catch (e: Exception) {
+                        Timber.tag("CyberInixaBanner").e(e, "Failed to load inixa gif")
+                    }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+        )
     }
 }
